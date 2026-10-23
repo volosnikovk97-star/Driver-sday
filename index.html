@@ -97,7 +97,7 @@ document.getElementById("fb").innerHTML='<div class="fb">'+(good?"✅ Верно
 document.getElementById("nx").onclick=function(){if(last)finish();else{i++;show()}}}
 function confetti(){var e=["🎉","🚗","⭐","🏁","🎊","🚦"];for(var n=0;n<28;n++){(function(n){setTimeout(function(){var s=document.createElement("span");s.className="conf";s.textContent=e[n%e.length];s.style.left=Math.random()*100+"vw";s.style.animationDuration=(2+Math.random()*2)+"s";document.body.appendChild(s);setTimeout(function(){s.remove()},4200)},n*70)})(n)}}
 function finish(){var t=T.filter(function(x){return ok<=x[0]})[0];
-var v=ok===10?"Сдали бы с первого раза! 🎓":ok===9?"Одна ошибка: инспектор дал бы 5 дополнительных вопросов.":"Пока пересдача, но это поправимо.";
+var v=ok===10?"Сдали бы с первого раза! 🎓":ok===9?"Одна ошибка: инспектор дал бы 5 дополнительных вопросов.":ok===8?"Две ошибки: инспектор дал бы 10 дополнительных вопросов.":"Пока пересдача, но это поправимо.";
 game.classList.add("hide");document.querySelector(".meta").classList.add("hide");end.classList.remove("hide");
 var msg="Я прошёл(а) тест ПДД ко Дню автомобилиста: "+ok+" из 10, титул — «"+t[2]+"» "+t[1];
 end.innerHTML='<div class="emo">'+t[1]+'</div><div class="title">'+t[2]+'</div><div class="score">Правильных ответов: <b>'+ok+' из 10</b></div><p>'+t[3]+'</p><p><b>'+v+'</b></p><button class="btn" id="again">Ещё раз 🔁</button> <button class="btn ghost" id="cp">Поделиться результатом</button>';

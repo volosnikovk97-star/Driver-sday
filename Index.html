@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Сдали бы вы теорию сегодня?</title>
+<style>
+:root{color-scheme:light;--bg:#fffcf3;--card:#fff;--ink:#23201c;--mut:#6d655a;--acc:#e8452c;--road:#4a4e57;--ok:#1f9d55;--bad:#d1342b;--line:#e6dcc8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:linear-gradient(180deg,#e9f6ff 0,var(--bg) 220px);color:var(--ink);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;min-height:100vh;display:flex;justify-content:center}
+main{width:100%;max-width:640px;padding:18px 16px 40px}
+h1{font-size:1.5rem;margin:6px 0 4px;line-height:1.15}
+.sub{color:var(--mut);margin:0 0 14px}
+.road{position:relative;height:64px;background:var(--road);border-radius:14px;overflow:hidden;margin:8px 0 16px}
+.dash{position:absolute;top:50%;left:0;right:0;height:4px;margin-top:-2px;background:repeating-linear-gradient(90deg,#fff 0 22px,transparent 22px 44px);opacity:.55;animation:roll 1s linear infinite;animation-play-state:paused}
+.road.go .dash{animation-play-state:running}
+@keyframes roll{to{background-position:-44px 0}}
+.car{position:absolute;top:8px;left:0;font-size:38px;line-height:48px;transition:left .9s cubic-bezier(.5,0,.2,1);transform:scaleX(-1)}
+.car.bounce{animation:hop .5s}
+.car.shake{animation:shk .45s}
+@keyframes hop{40%{margin-top:-14px}}
+@keyframes shk{25%{margin-left:-6px}75%{margin-left:6px}}
+.flag{position:absolute;right:8px;top:12px;font-size:30px}
+.meta{display:flex;justify-content:space-between;color:var(--mut);font-size:.9rem;margin-bottom:8px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:18px;animation:pop .35s}
+@keyframes pop{from{opacity:0;transform:translateY(12px)}}
+.q{font-size:1.15rem;font-weight:700;margin:0 0 14px;line-height:1.35}
+.opt{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:12px 14px;margin:8px 0;cursor:pointer;transition:transform .12s,border-color .12s}
+.opt:hover:not(:disabled){transform:translateX(4px);border-color:var(--acc)}
+.opt:disabled{cursor:default}
+.opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,var(--card))}
+.opt.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 18%,var(--card));animation:shk .4s}
+.fb{margin-top:12px;padding:12px;border-radius:12px;background:var(--bg);font-size:.95rem;line-height:1.4}
+.btn{font:inherit;font-weight:700;background:var(--acc);color:#fff;border:0;border-radius:999px;padding:12px 26px;margin-top:14px;cursor:pointer;transition:transform .12s}
+.btn:hover{transform:scale(1.05)}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.hide{display:none}
+.res{text-align:center}
+.emo{font-size:76px;animation:spin 1.2s ease-out}
+@keyframes spin{from{transform:rotate(-200deg) scale(.2);opacity:0}}
+.title{font-size:1.7rem;font-weight:800;color:var(--acc);margin:6px 0}
+.score{font-size:1.1rem;margin:4px 0 10px}
+.conf{position:fixed;top:-30px;font-size:26px;pointer-events:none;animation:fall linear forwards;z-index:9}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<h1>🚦 Сдали бы вы теорию сегодня?</h1>
+<p class="sub">С Днём автомобилиста! 10 вопросов из экзаменационных билетов ГИБДД. Что победит: ваш водительский опыт или знание правил?</p>
+<div class="road" id="road"><div class="dash"></div><div class="car" id="car">🚗</div><div class="flag">🏁</div></div>
+<div class="meta"><span id="step">Вопрос 1 из 10</span><span id="sc">Верно: 0</span></div>
+<section class="card" id="game"></section>
+<section class="card res hide" id="end"></section>
+</main>
+<script>
+var Q=[
+["В каком случае водитель совершит вынужденную остановку?",["Остановившись перед пешеходным переходом, чтобы уступить дорогу пешеходу","Остановившись на проезжей части из-за технической неисправности","В обоих случаях"],1,"Вынужденная остановка — из-за неисправности, опасного груза, состояния водителя или препятствия. Уступить пешеходу — это обычная остановка."],
+["Что означает мигание зелёного сигнала светофора?",["Предупреждает о неисправности светофора","Разрешает движение и информирует, что вскоре включится запрещающий сигнал","Запрещает дальнейшее движение"],1,"Мигающий зелёный — скоро загорится жёлтый."],
+["Когда водитель обязан подавать сигналы указателями поворота (рукой)?",["Перед началом движения или перестроением","Перед поворотом или разворотом","Перед остановкой","Во всех перечисленных случаях"],3,"Пункт 8.1 ПДД: перед началом движения, перестроением, поворотом, разворотом и остановкой."],
+["Какое удостоверение нужно для перевозки людей на мотоцикле?",["Категории «А» или подкатегории «А1»","Любой категории в течение двух и более лет","Только «А» или «А1» в течение двух и более лет"],2,"Пункт 22.2(1) ПДД: право управления мотоциклом («А» или «А1») — два года и более."],
+["При какой неисправности разрешается эксплуатация автомобиля?",["Не работают запорные устройства топливных баков","Не работает фиксатор сиденья водителя","Не работает обдув ветрового стекла","Не работает стеклоподъёмник"],3,"По Перечню неисправностей ездить можно только с неработающим стеклоподъёмником."],
+["Правые колёса наехали на неукреплённую влажную обочину. Что рекомендуется?",["Затормозить и полностью остановиться","Затормозить и плавно вернуться на проезжую часть","Не тормозя, плавно направить автомобиль на проезжую часть"],2,"Из-за разной степени сцепления возможен занос. Торможение только ухудшит ситуацию."],
+["Что такое время реакции водителя?",["Время от обнаружения опасности до полной остановки","Время от обнаружения опасности до начала принятия мер по её избежанию","Время переноса ноги с газа на тормоз"],1,"Это именно время до начала действий, а не до остановки."],
+["Когда можно наезжать на прерывистые линии разметки между полосами?",["Только если на дороге нет других машин","Только в тёмное время суток","Только при перестроении","Во всех перечисленных случаях"],2,"Пункт 9.7 ПДД: только при перестроении."],
+["Когда запрещена буксировка на гибкой сцепке?",["Только на горных дорогах","Только в гололедицу","Только ночью и в условиях недостаточной видимости","Во всех перечисленных случаях"],1,"Пункт 20.4 ПДД: гибкая сцепка запрещена только в гололедицу."],
+["Исключает ли АБС возможность заноса или сноса в повороте?",["Полностью исключает только занос","Полностью исключает только снос","Не исключает ни сноса, ни заноса"],2,"АБС лишь предотвращает блокировку колёс при торможении. Физику она не отменяет."]
+];
+var T=[[1,"🚶","Пешеход с гордостью","Вы так уверенно ходите пешком, что машине тут явно нечего делать. Но знаки пора повторить!"],
+[3,"🛋️","Ленивый лимузин","Красиво едете, но правила читали в основном на светофоре. Подтяните теорию."],
+[5,"🐢","Аккуратная черепаха","Едете аккуратно и не спеша. Базу знаете, осталось добавить уверенности."],
+[7,"🅿️","Мастер дворовых парковок","Втиснетесь куда угодно. Пара ошибок — и вы почти в дамках."],
+[9,"🏎️","Водитель-ас","Почти идеально! Инспектор уже достал жезл, чтобы вас похвалить."],
+[10,"👑","Ходячий свод ПДД","Ни одной ошибки! Можно смело выезжать на любую дорогу и любые экзамены."]];
+var i,ok,locked,order,road=document.getElementById("road"),car=document.getElementById("car"),game=document.getElementById("game"),end=document.getElementById("end");
+function sh(a){a=a.slice();for(var k=a.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1));var t=a[k];a[k]=a[j];a[j]=t}return a}
+function start(){i=0;ok=0;order=sh(Q.map(function(_,k){return k}));end.classList.add("hide");game.classList.remove("hide");document.querySelector(".meta").classList.remove("hide");car.style.left="0px";show()}
+function show(){locked=false;var q=Q[order[i]];var idx=sh(q[1].map(function(_,k){return k}));
+document.getElementById("step").textContent="Вопрос "+(i+1)+" из 10";document.getElementById("sc").textContent="Верно: "+ok;
+game.style.animation="none";void game.offsetWidth;game.style.animation="";
+var h='<p class="q">'+q[0]+'</p>';
+idx.forEach(function(k){h+='<button class="opt" data-k="'+k+'">'+q[1][k]+'</button>'});
+h+='<div id="fb"></div>';game.innerHTML=h;
+game.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){pick(b,q)}})}
+function move(){var w=road.clientWidth-car.offsetWidth-44;car.style.left=Math.round(w*(i+1)/10)+"px";road.classList.add("go");setTimeout(function(){road.classList.remove("go")},900)}
+function pick(b,q){if(locked)return;locked=true;var k=+b.dataset.k,good=k===q[2];
+game.querySelectorAll(".opt").forEach(function(o){o.disabled=true;if(+o.dataset.k===q[2])o.classList.add("ok")});
+if(!good)b.classList.add("bad");else ok++;
+car.classList.remove("bounce","shake");void car.offsetWidth;car.classList.add(good?"bounce":"shake");move();
+document.getElementById("sc").textContent="Верно: "+ok;
+var last=i===9;
+document.getElementById("fb").innerHTML='<div class="fb">'+(good?"✅ Верно! ":"❌ Не совсем. ")+q[3]+'</div><button class="btn" id="nx">'+(last?"Узнать свой титул 🏆":"Дальше →")+'</button>';
+document.getElementById("nx").onclick=function(){if(last)finish();else{i++;show()}}}
+function confetti(){var e=["🎉","🚗","⭐","🏁","🎊","🚦"];for(var n=0;n<28;n++){(function(n){setTimeout(function(){var s=document.createElement("span");s.className="conf";s.textContent=e[n%e.length];s.style.left=Math.random()*100+"vw";s.style.animationDuration=(2+Math.random()*2)+"s";document.body.appendChild(s);setTimeout(function(){s.remove()},4200)},n*70)})(n)}}
+function finish(){var t=T.filter(function(x){return ok<=x[0]})[0];
+var v=ok===10?"Сдали бы с первого раза! 🎓":ok===9?"Одна ошибка: инспектор дал бы 5 дополнительных вопросов.":"Пока пересдача, но это поправимо.";
+game.classList.add("hide");document.querySelector(".meta").classList.add("hide");end.classList.remove("hide");
+var msg="Я прошёл(а) тест ПДД ко Дню автомобилиста: "+ok+" из 10, титул — «"+t[2]+"» "+t[1];
+end.innerHTML='<div class="emo">'+t[1]+'</div><div class="title">'+t[2]+'</div><div class="score">Правильных ответов: <b>'+ok+' из 10</b></div><p>'+t[3]+'</p><p><b>'+v+'</b></p><button class="btn" id="again">Ещё раз 🔁</button> <button class="btn ghost" id="cp">Поделиться результатом</button>';
+document.getElementById("again").onclick=start;
+document.getElementById("cp").onclick=function(){var b=this;try{navigator.clipboard.writeText(msg).then(function(){b.textContent="Скопировано ✔"},function(){b.textContent=msg})}catch(e){b.textContent=msg}};
+if(ok>=8)confetti()}
+start();
+window.addEventListener("resize",function(){if(!end.classList.contains("hide"))return;car.style.transition="none";var w=road.clientWidth-car.offsetWidth-44;car.style.left=Math.round(w*(i+(locked?1:0))/10)+"px";setTimeout(function(){car.style.transition=""},50)});
+</script>
+</body>
+</html>
